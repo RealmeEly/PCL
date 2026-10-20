@@ -951,4 +951,14 @@
 
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
+  <PropertyGroup>
+    <!-- 与 ModBase.VersionBaseName 保持一致 -->
+    <PclVersion>2.99.0.1</PclVersion>
+  </PropertyGroup>
+  <Target Name="AfterBuild">
+    <Copy SourceFiles="$(TargetPath)" DestinationFiles="$(TargetDir)PCL2_modified_by_RealmeEly_$(PclVersion).exe" />
+    <ItemGroup>
+      <FileWrites Include="$(TargetDir)PCL2_modified_by_RealmeEly_$(PclVersion).exe" />
+    </ItemGroup>
+  </Target>
 </Project>

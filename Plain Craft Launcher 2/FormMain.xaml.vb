@@ -11,9 +11,6 @@ Public Class FormMain
         Dim FeatureList As New List(Of KeyValuePair(Of Integer, String))
         '统计更新日志条目
         If BuildType = BuildTypes.Release Then
-            If LastVersion < 413 Then 'Release 2.99.0.0
-                FeatureList.Add(New KeyValuePair(Of Integer, String)(5, "删除：为遵守相关法律法规，PCL 暂时不再提供 MC 下载功能，非常抱歉 qwq……"))
-            End If
             If LastVersion < 411 Then 'Release 2.14.0.0
                 FeatureList.Add(New KeyValuePair(Of Integer, String)(4, "新增：允许修改、添加、移除、更新已安装版本的各个组件，可从版本设置中进入"))
                 FeatureList.Add(New KeyValuePair(Of Integer, String)(2, "优化：启动游戏时允许按 Esc 取消"))
@@ -103,9 +100,6 @@ Public Class FormMain
             '3：BUG+ IMP* FEAT-
             '2：BUG* IMP-
             '1：BUG-
-            If LastVersion < 414 Then 'Snapshot 2.99.0.0
-                FeatureList.Add(New KeyValuePair(Of Integer, String)(5, "删除：为遵守相关法律法规，PCL 暂时不再提供 MC 下载功能，非常抱歉 qwq……"))
-            End If
             If LastVersion < 412 Then 'Snapshot 2.14.0.0
                 FeatureList.Add(New KeyValuePair(Of Integer, String)(4, "新增：允许修改、添加、移除、更新已安装版本的各个组件，可从版本设置中进入"))
                 FeatureList.Add(New KeyValuePair(Of Integer, String)(2, "优化：启动游戏时允许按 Esc 取消"))
@@ -274,7 +268,7 @@ Public Class FormMain
         RunInNewThread(
         Sub()
             If MyMsgBox(Content, "PCL 已更新至" & VersionDisplay, "确定", "完整更新日志") = 2 Then
-                OpenWebsite("https://meloong.com/afd/a/LTCat?tab=feed")
+                OpenWebsite(UpdateCheckUrl)
             End If
         End Sub, "UpdateLog Output")
     End Sub
@@ -447,9 +441,10 @@ Public Class FormMain
             End Try
             '上报
             Telemetry("启动")
-            '开源版本提示
-            If VersionBranchMain = "OpenSource" Then
-                MyMsgBox($"该版本中无法使用以下特性：{vbCrLf}- CurseForge API 调用：需要自行申请 API Key，然后添加到 ModSecret.vb 的开头{vbCrLf}- 正版登录：需要自行向微软申请 Client ID，然后添加到 ModSecret.vb 的开头{vbCrLf}- 更新与联网通知：避免滥用隐患{vbCrLf}- 主题切换：这是需要赞助解锁的纪念性质的功能，别让赞助者太伤心啦……{vbCrLf}- 百宝箱：开发早期往里面塞了些开发工具，整理起来太麻烦了……", "开源版本说明")
+            '开源版本提示（仅首次启动时提示缺少的配置）
+            If VersionBranchMain = "OpenSource" AndAlso Not Settings.Get(Of Boolean)("HintConfigKeys") Then
+                Settings.Set("HintConfigKeys", True)
+                ShowMissingConfigNotice()
             End If
         End Sub, "初始化", ThreadPriority.Lowest)
 
@@ -623,7 +618,7 @@ Public Class FormMain
         If ReturnCode = ProcessReturnValues.Exception Then
             If Not IsLogShown Then
                 FeedbackInfo()
-                Logger.Info("请在 https://github.com/Meloong-Git/PCL/issues 提交错误报告，以便于作者解决此问题！")
+                Logger.Info("请在 https://github.com/RealmeEly/PCL/issues 提交错误报告，以便于作者解决此问题！")
                 IsLogShown = True
                 StartProcess(Paths.Base & "PCL\Log1.txt")
             End If
@@ -1076,10 +1071,6 @@ Public Class FormMain
                     RunInUi(Sub() FrmMain.PageChange(FormMain.PageType.TaskManager))
                     Return
                 Catch ex As Exception
-                    If RestrictMcDownload AndAlso ex.Message = "为遵守相关法律法规，PCL 暂时不再提供 MC 下载功能，非常抱歉 qwq……" Then
-                        Hint(ex.Message, HintType.Red)
-                        Return
-                    End If
                     If ex.IsCanceled Then Return
                     '安装失败，继续往后尝试
                 End Try

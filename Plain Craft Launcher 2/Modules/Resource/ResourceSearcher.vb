@@ -436,7 +436,11 @@ NextPage:
             ElseIf Errors.Any() Then
                 '有结果但是有错误
                 If Errors.Any(Function(e) e.Source = ResourcePlatforms.CurseForge) Then
-                    Storage.ErrorMessage = $"无法连接到 CurseForge，所以目前仅显示了来自 Modrinth 的内容，搜索结果可能不全。{vbCrLf}请稍后再试，或使用 VPN 改善网络环境。"
+                    If String.IsNullOrEmpty(CurseForgeAPIKey) Then
+                        Storage.ErrorMessage = "未设置 CurseForge API Key，无法获取 CurseForge 内容。请设置环境变量 PCL_CURSEFORGE_API_KEY 后重启 PCL。"
+                    Else
+                        Storage.ErrorMessage = $"无法连接到 CurseForge，所以目前仅显示了来自 Modrinth 的内容，搜索结果可能不全。{vbCrLf}请稍后再试，或使用 VPN 改善网络环境。"
+                    End If
                 Else
                     Storage.ErrorMessage = $"无法连接到 Modrinth，所以目前仅显示了来自 CurseForge 的内容，搜索结果可能不全。{vbCrLf}请稍后再试，或使用 VPN 改善网络环境。"
                 End If

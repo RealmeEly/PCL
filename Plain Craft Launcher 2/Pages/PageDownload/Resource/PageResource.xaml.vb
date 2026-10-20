@@ -221,6 +221,11 @@ Public Class PageResource
 
     '搜索按钮
     Private Sub StartNewSearch() Handles BtnSearchRun.Click
+        Dim Sources = CType(Val(ComboSearchSource.SelectedItem.Tag), ResourcePlatforms)
+        If String.IsNullOrEmpty(CurseForgeAPIKey) AndAlso Sources.HasFlagF(ResourcePlatforms.CurseForge) Then
+            ShowCurseForgeKeyHint()
+            If Sources = ResourcePlatforms.CurseForge Then Return
+        End If
         Page = 0
         If Loader.ShouldStart(LoaderInput()) Then Storage = New ResourceSearcher.SearchResult '避免连续搜索两次导致 ProjectStorage 引用丢失（#1311）
         Loader.Start()

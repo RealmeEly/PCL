@@ -342,3 +342,13 @@ ASALocalRun/
 healthchecksdb
 
 MaskFiles/
+
+# VSCode
+.vscode
+
+# Agent
+.omo
+.agent
+.claude
+.opencode
+.codex

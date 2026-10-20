@@ -14,6 +14,7 @@ Public Class Settings
         New Setting("HintHide", False, Source:=Sources.Registry),
         New Setting("HintHandInstall", False, Source:=Sources.Registry),
         New Setting("HintBuy", False, Source:=Sources.Registry),
+        New Setting("HintConfigKeys", False, Source:=Sources.Registry),
         New Setting("HintClearRubbish", 0, Source:=Sources.Registry),
         New Setting("HintUpdateMod", False, Source:=Sources.Registry),
         New Setting("HintCustomCommand", False, Source:=Sources.Registry),
@@ -35,7 +36,7 @@ Public Class Settings
         New Setting("SystemDebugDelay", False, Source:=Sources.Registry),
         New Setting("SystemDebugSkipCopy", False, Source:=Sources.Registry),
         New Setting("SystemSystemCache", "", Source:=Sources.Registry),
-        New Setting("SystemSystemUpdate", 0),
+        New Setting("SystemSystemUpdate", 3), '默认关闭启动器更新提示
         New Setting("SystemSystemActivity", 0),
         New Setting("SystemSystemTelemetry", True, Source:=Sources.Registry),
         New Setting("CacheDrops", "", Source:=Sources.Registry),

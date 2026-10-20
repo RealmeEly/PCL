@@ -1,5 +1,12 @@
 Public Class PageLoginMs
 
+    Private Sub PageLoginMs_Loaded(sender As Object, e As RoutedEventArgs) Handles Me.Loaded
+        Dim HasLoggedIn As Boolean =
+            Not String.IsNullOrEmpty(Settings.Get(Of String)("CacheMsV2Name")) OrElse
+            Not String.IsNullOrEmpty(Settings.Get(Of String)("CacheMsName"))
+        HintNoClientId.Visibility = If(String.IsNullOrEmpty(OAuthClientId) AndAlso Not HasLoggedIn, Visibility.Visible, Visibility.Collapsed)
+    End Sub
+
     ''' <summary>
     ''' 刷新页面显示的所有信息。
     ''' </summary>
@@ -65,6 +72,10 @@ Public Class PageLoginMs
     End Function
 
     Private Sub BtnLogin_Click(sender As Object, e As EventArgs) Handles BtnLogin.Click
+        If String.IsNullOrEmpty(OAuthClientId) Then
+            Hint("当前版本未内置微软登录 Client ID，无法使用正版登录。请设置环境变量 PCL_MS_CLIENT_ID 后重启 PCL。", HintType.Red)
+            Return
+        End If
         ComboAccounts.IsEnabled = False
         BtnLogin.IsEnabled = False
         BtnLogin.Text = "0%"

@@ -15,7 +15,6 @@ Friend Module ModSecret
 
 #Region "网络鉴权"
 
-    Public Const RestrictMcDownload As Boolean = True
     Friend Function SecretCdnSign(UrlWithMark As String) As String
         If Not UrlWithMark.EndsWithF("{CDN}") Then Return UrlWithMark
         Return UrlWithMark.Replace("{CDN}", "").Replace(" ", "%20")
@@ -145,8 +144,22 @@ Friend Module ModSecret
 
 #Region "更新"
 
+    ''' <summary>
+    ''' 本项目（非官方 fork）的仓库地址。
+    ''' </summary>
+    Public Const RepositoryUrl As String = "https://github.com/RealmeEly/PCL"
+
+    ''' <summary>
+    ''' 非官方构建的更新检查页面。
+    ''' </summary>
+    Public Const UpdateCheckUrl As String = RepositoryUrl & "/releases"
+
     Friend Sub UpdateCheckByButton()
-        Hint("该版本中不包含更新功能……")
+        If MyMsgBox("当前版本为 RealmeEly 的非官方构建（modified by RealmeEly）。" & vbCrLf &
+                    "自动更新已默认禁用，请前往 GitHub Releases 页面手动获取最新版本。",
+                    "检查更新", "打开 GitHub Releases", "取消") = 1 Then
+            OpenWebsite(UpdateCheckUrl)
+        End If
     End Sub
 
     Friend IsUpdateWaitingRestart As Boolean = False
@@ -197,6 +210,48 @@ Friend Module ModSecret
     Friend Function GetIdentify() As String
         Return "0000-0000-0000-0000"
     End Function
+
+#End Region
+
+#Region "非官方构建配置提示"
+
+    ''' <summary>
+    ''' 是否缺少非官方构建所需的手动配置。
+    ''' </summary>
+    Friend Function IsConfigMissing() As Boolean
+        Return String.IsNullOrEmpty(OAuthClientId) OrElse String.IsNullOrEmpty(CurseForgeAPIKey)
+    End Function
+
+    ''' <summary>
+    ''' 首次启动时提示缺失的配置项。
+    ''' </summary>
+    Friend Sub ShowMissingConfigNotice()
+        If Not IsConfigMissing() Then Return
+        Dim Lines As New List(Of String)
+        If String.IsNullOrEmpty(OAuthClientId) Then Lines.Add("- 微软正版登录：请设置环境变量 PCL_MS_CLIENT_ID")
+        If String.IsNullOrEmpty(CurseForgeAPIKey) Then Lines.Add("- CurseForge 搜索/下载：请设置环境变量 PCL_CURSEFORGE_API_KEY")
+        Lines.Add("- 更新与联网通知：该版本不包含")
+        Lines.Add("- 主题切换：保持原样（需赞助解锁）")
+        Lines.Add("- 百宝箱：该版本不包含")
+        MyMsgBox("该版本为非官方开源构建，以下功能需要手动配置或不可用：" & vbCrLf &
+                 Lines.Join(vbCrLf) & vbCrLf & vbCrLf &
+                 "设置环境变量后，请重启 PCL。", "开源版本说明")
+    End Sub
+
+    Private CurseForgeKeyHinted As Boolean = False
+
+    ''' <summary>
+    ''' 在 CurseForge 搜索/下载前提示未配置 API Key。
+    ''' </summary>
+    Friend Sub ShowCurseForgeKeyHint()
+        If CurseForgeKeyHinted OrElse Not String.IsNullOrEmpty(CurseForgeAPIKey) Then Return
+        CurseForgeKeyHinted = True
+        If MyMsgBox("当前版本未设置 CurseForge API Key，CurseForge 搜索与下载将不可用。" & vbCrLf &
+                    "请设置环境变量 PCL_CURSEFORGE_API_KEY 后重启 PCL。",
+                    "CurseForge 配置提示", "我知道了", "打开申请页面") = 2 Then
+            OpenWebsite("https://console.curseforge.com/")
+        End If
+    End Sub
 
 #End Region
 
